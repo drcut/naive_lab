@@ -11,15 +11,13 @@ function getSubDown(id , s_id) {
     window.location.href = base_url + "index.php?m=down&a=sub&id=" + id + "&s_id=" + s_id;
 }
 '''
-PAGE_START = 1490
-#PAGE_END = 500
-PAGE_END = 194910
+
 Local = '/media/robin/sorry/spider/new_conversition/'
 global Be_Banded
 Be_Banded = False
 base_url = 'http://www.subom.net/sinfo/'
-page_num = PAGE_START
-total_num = PAGE_END
+PAGE_START = 2328
+PAGE_END = 194910
 def Schedule(a,b,c):
     '''''
     a:已经下载的数据块
@@ -33,8 +31,14 @@ def Schedule(a,b,c):
 def index_page(response):
         #have chinese or not
     flag = False
+    suffix = ''
     for each in response('.div_content'):
         tmp_str = pq(each).text()
+        #print tmp_str
+        if(suffix=='' and tmp_str.find(u"下载地址")!=-1 and tmp_str.find(u"zip")>-1):
+          suffix=".zip"
+        if(suffix=='' and tmp_str.find(u"下载地址")!=-1 and tmp_str.find(u"rar")>-1):
+          suffix=".rar"
         if(tmp_str.find(u"字幕语种")>-1):
             if(tmp_str.upper().find(u"VOBSUB")>-1):
                 flag = False
@@ -51,7 +55,11 @@ def index_page(response):
                  url = base_url + str(page_num)+"/index.php?m=down&a=sub&id="+str(tmp[1])+"&s_id="+str(tmp[3])
                  f = urllib2.urlopen(url) 
                  data = f.read() 
-                 with open(Local+str(tmp[1]), "wb") as code:     
+                 if(data.find("ERROR.")>-1):
+                    global Be_Banded
+                    Be_Banded=True
+                    return
+                 with open(Local+str(tmp[1])+suffix, "wb") as code:     
                   code.write(data)
                   print "write:"+Local+str(tmp[1])
                  #time.sleep(1)
@@ -60,7 +68,21 @@ if __name__ == '__main__':
     headers = { 'User-Agent' : user_agent }
     proxies = getip.getListProxies()
     while page_num<=total_num:
+      '''
+      print page_num
+      url = base_url + str(page_num)
+      request = urllib2.Request(url,headers = headers)
+      response = urllib2.urlopen(request)
+      content = response.read().decode('utf-8')
+            #print content
+      index_page(pq(content))
+      if(Be_Banded == True):
+        print "fuck! I am banded!"
+        break
+      page_num += 1    
+      '''
       for proxy in proxies:
+        print "new proxy"
         proxy_support = urllib2.ProxyHandler(proxy)
         opener = urllib2.build_opener(proxy_support)
         urllib2.install_opener(opener)
@@ -77,4 +99,3 @@ if __name__ == '__main__':
               break
             page_num += 1    
       proxies = getip.getListProxies()       
-          

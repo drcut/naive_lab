@@ -27,6 +27,7 @@ def getListProxies():
                 break
         except Exception, e:
             continue
+    print "get proxy list!"
     return proxyList
 
 if __name__ == '__main__':     
