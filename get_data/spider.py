@@ -4,13 +4,14 @@ import urllib
 import urllib2
 from pyquery import PyQuery as pq
 import time
+import getip
 '''
 var base_url = window.base_url ? window.base_url : '';
 function getSubDown(id , s_id) {
     window.location.href = base_url + "index.php?m=down&a=sub&id=" + id + "&s_id=" + s_id;
 }
 '''
-PAGE_START = 500
+PAGE_START = 1490
 #PAGE_END = 500
 PAGE_END = 194910
 Local = '/media/robin/sorry/spider/new_conversition/'
@@ -48,20 +49,32 @@ def index_page(response):
            if(start_pos>-1):
                  tmp=pq(tmp_html).find('li').eq(0)('a').attr('onclick').split("'")
                  url = base_url + str(page_num)+"/index.php?m=down&a=sub&id="+str(tmp[1])+"&s_id="+str(tmp[3])
-                 urllib.urlretrieve(url, Local+str(tmp[1]),Schedule)
-                 time.sleep(1)
+                 f = urllib2.urlopen(url) 
+                 data = f.read() 
+                 with open(Local+str(tmp[1]), "wb") as code:     
+                  code.write(data)
+                  print "write:"+Local+str(tmp[1])
+                 #time.sleep(1)
 if __name__ == '__main__':     
     user_agent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
     headers = { 'User-Agent' : user_agent }
-    while page_num <= total_num:
-          print float(page_num)/float(total_num)
-          url = base_url + str(page_num)
-          request = urllib2.Request(url,headers = headers)
-          response = urllib2.urlopen(request)
-          content = response.read().decode('utf-8')
-          #print content
-          index_page(pq(content))
-          if(Be_Banded == True):
-            print "fuck! I am banded!"
-            break
-          page_num += 1               
+    proxies = getip.getListProxies()
+    while page_num<=total_num:
+      for proxy in proxies:
+        proxy_support = urllib2.ProxyHandler(proxy)
+        opener = urllib2.build_opener(proxy_support)
+        urllib2.install_opener(opener)
+        while page_num<=total_num:
+            print page_num
+            url = base_url + str(page_num)
+            request = urllib2.Request(url,headers = headers)
+            response = urllib2.urlopen(request)
+            content = response.read().decode('utf-8')
+            #print content
+            index_page(pq(content))
+            if(Be_Banded == True):
+              print "fuck! I am banded!"
+              break
+            page_num += 1    
+      proxies = getip.getListProxies()       
+          
