@@ -17,7 +17,7 @@ Local = '/media/robin/sorry/spider/new_conversition/'
 global Be_Banded
 Be_Banded = False
 base_url = 'http://www.subom.net/sinfo/'
-PAGE_START = 3046
+PAGE_START = 6755
 PAGE_END = 194910
 global page_num
 page_num = PAGE_START
@@ -52,7 +52,8 @@ def index_page(response):
                  url = base_url + str(page_num)+"/index.php?m=down&a=sub&id="+str(tmp[1])+"&s_id="+str(tmp[3])
                  print "urlopen..."
                  try:
-                   f = urllib2.urlopen(url,timeout=10) 
+                   #print proxy
+                   f = urllib2.urlopen(url) 
                    data = f.read() 
                    if(data.find("ERROR.")>-1):
                       Be_Banded=True
@@ -63,9 +64,11 @@ def index_page(response):
                     code.write(data)
                     print "write:"+Local+str(tmp[1])
                  except Exception,e:
+                  print Exception,':',e
                   Be_Banded=True
                  #time.sleep(1)
-if __name__ == '__main__':     
+if __name__ == '__main__':
+    socket.setdefaulttimeout(10)     
     user_agent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
     headers = { 'User-Agent' : user_agent }
     proxies = getip.getListProxies()
@@ -92,9 +95,10 @@ if __name__ == '__main__':
         while page_num<=total_num:
             print page_num
             url = base_url + str(page_num)
-            request = urllib2.Request(url,headers = headers)
+            #request = urllib2.Request(url,headers = headers)
             try:  
-              response = urllib2.urlopen(request,timeout=10)
+              #response = urllib2.urlopen(request,timeout=10)
+              response = urllib.urlopen(url)
               content = response.read().decode('utf-8')
             #print content
               index_page(pq(content))
