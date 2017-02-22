@@ -5,6 +5,7 @@ import urllib2
 from pyquery import PyQuery as pq
 import time
 import getip
+import socket
 '''
 var base_url = window.base_url ? window.base_url : '';
 function getSubDown(id , s_id) {
@@ -16,7 +17,7 @@ Local = '/media/robin/sorry/spider/new_conversition/'
 global Be_Banded
 Be_Banded = False
 base_url = 'http://www.subom.net/sinfo/'
-PAGE_START = 2881
+PAGE_START = 3046
 PAGE_END = 194910
 global page_num
 page_num = PAGE_START
@@ -24,6 +25,7 @@ total_num = PAGE_END
 def index_page(response):
         #have chinese or not
     global page_num    
+    global Be_Banded
     flag = False
     suffix = ''
     for each in response('.div_content'):
@@ -53,16 +55,15 @@ def index_page(response):
                    f = urllib2.urlopen(url,timeout=10) 
                    data = f.read() 
                    if(data.find("ERROR.")>-1):
-                      global Be_Banded
                       Be_Banded=True
                       print "fuck! I am banded!"
                       return
                    with open(Local+str(tmp[1])+suffix, "wb") as code:     
+                    #print "writing..."
                     code.write(data)
                     print "write:"+Local+str(tmp[1])
                  except Exception,e:
-                  
-                  page_num -= 1
+                  Be_Banded=True
                  #time.sleep(1)
 if __name__ == '__main__':     
     user_agent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
@@ -99,13 +100,17 @@ if __name__ == '__main__':
               index_page(pq(content))
               if(Be_Banded == True):
                 break
+            except socket.error, arg:
+              print "socket.error:"
+              print arg
+              break
             except Exception,e:  
-              print Exception,":",e
+              print "other error:"
+              print e
               if hasattr(e,"reason"):
-                print e.reason
-                if(e.reason[1].find("Connection refused")>-1):
+                if(isinstance(e.reason, socket.error)):
                   break
-              else:
-                page_num-=1
+              page_num-=1
+              time.sleep(2)
             page_num += 1    
       proxies = getip.getListProxies()       
