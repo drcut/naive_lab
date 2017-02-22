@@ -16,7 +16,7 @@ Local = '/media/robin/sorry/spider/new_conversition/'
 global Be_Banded
 Be_Banded = False
 base_url = 'http://www.subom.net/sinfo/'
-PAGE_START = 2584
+PAGE_START = 2860
 PAGE_END = 194910
 global page_num
 page_num = PAGE_START
@@ -83,6 +83,7 @@ if __name__ == '__main__':
       page_num += 1    
       '''
       for proxy in proxies:
+        Be_Banded = False
         print "new proxy"
         proxy_support = urllib2.ProxyHandler(proxy)
         opener = urllib2.build_opener(proxy_support)
@@ -97,10 +98,12 @@ if __name__ == '__main__':
             #print content
               index_page(pq(content))
               if(Be_Banded == True):
-                #print "fuck! I am banded!"
                 break
             except Exception,e:  
               print Exception,":",e
-              page_num -= 1
+              if hasattr(e,"reason"):
+                print e.reason
+                if(e.reason[1].find("Connection refused")>-1):
+                  break
             page_num += 1    
       proxies = getip.getListProxies()       
