@@ -16,7 +16,7 @@ Local = '/media/robin/sorry/spider/new_conversition/'
 global Be_Banded
 Be_Banded = False
 base_url = 'http://www.subom.net/sinfo/'
-PAGE_START = 2860
+PAGE_START = 2881
 PAGE_END = 194910
 global page_num
 page_num = PAGE_START
@@ -105,5 +105,7 @@ if __name__ == '__main__':
                 print e.reason
                 if(e.reason[1].find("Connection refused")>-1):
                   break
+              else:
+                page_num-=1
             page_num += 1    
       proxies = getip.getListProxies()       
