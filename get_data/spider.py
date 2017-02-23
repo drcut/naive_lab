@@ -6,6 +6,8 @@ from pyquery import PyQuery as pq
 import time
 import getip
 import socket
+import argparse
+import os
 '''
 var base_url = window.base_url ? window.base_url : '';
 function getSubDown(id , s_id) {
@@ -13,18 +15,24 @@ function getSubDown(id , s_id) {
 }
 '''
 
-Local = '/media/robin/sorry/spider/new_conversition/'
+parser = argparse.ArgumentParser()
+parser.add_argument('-f', '--filename', help='Directory where data is going to be stored', default=r'/media/robin/sorry/spider/new_conversition/')
+parser.add_argument('-s', '--start', type=int, help='Start Number')
+parser.add_argument('-t', '--sleep', type=int, help='Sleeping time', default=5)
+args = parser.parse_args()
+
+Local = args.filename
 global Be_Banded
 Be_Banded = False
 base_url = 'http://www.subom.net/sinfo/'
-PAGE_START = 6755
+PAGE_START = args.start
 PAGE_END = 194910
 global page_num
 page_num = PAGE_START
 total_num = PAGE_END
 def index_page(response):
         #have chinese or not
-    global page_num    
+    global page_num
     global Be_Banded
     flag = False
     suffix = ''
@@ -53,22 +61,23 @@ def index_page(response):
                  print "urlopen..."
                  try:
                    #print proxy
-                   f = urllib2.urlopen(url) 
-                   data = f.read() 
-                   if(data.find("ERROR.")>-1):
+                   f = urllib2.urlopen(url)
+                   data = f.read()
+                   if data.find("ERROR.")>-1 or len(data) < 1024:
                       Be_Banded=True
                       print "fuck! I am banded!"
                       return
-                   with open(Local+str(tmp[1])+suffix, "wb") as code:     
+                   _filename = os.path.join(Local, str(tmp[1]) + suffix)
+                   with open(_filename, "wb") as code:
                     #print "writing..."
                     code.write(data)
-                    print "write:"+Local+str(tmp[1])
+                    print "write:" + _filename
                  except Exception,e:
                   print Exception,':',e
                   Be_Banded=True
                  #time.sleep(1)
 if __name__ == '__main__':
-    socket.setdefaulttimeout(10)     
+    socket.setdefaulttimeout(10)
     user_agent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
     headers = { 'User-Agent' : user_agent }
     proxies = getip.getListProxies()
@@ -84,7 +93,7 @@ if __name__ == '__main__':
       if(Be_Banded == True):
         print "fuck! I am banded!"
         break
-      page_num += 1    
+      page_num += 1
       '''
       for proxy in proxies:
         Be_Banded = False
@@ -96,7 +105,7 @@ if __name__ == '__main__':
             print page_num
             url = base_url + str(page_num)
             #request = urllib2.Request(url,headers = headers)
-            try:  
+            try:
               #response = urllib2.urlopen(request,timeout=10)
               response = urllib.urlopen(url)
               content = response.read().decode('utf-8')
@@ -108,13 +117,13 @@ if __name__ == '__main__':
               print "socket.error:"
               print arg
               break
-            except Exception,e:  
+            except Exception,e:
               print "other error:"
               print e
               if hasattr(e,"reason"):
                 if(isinstance(e.reason, socket.error)):
                   break
               page_num-=1
-              time.sleep(2)
-            page_num += 1    
-      proxies = getip.getListProxies()       
+              time.sleep(args.sleep)
+            page_num += 1
+      proxies = getip.getListProxies()
