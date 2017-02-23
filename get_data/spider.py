@@ -63,8 +63,11 @@ def index_page(response):
                    #print proxy
                    f = urllib2.urlopen(url)
                    data = f.read()
+                   if(len(data)<3):#empty file
+                       print "empty file"
+                       return
                    if(len(data) < 1024 and data.find("found")!=-1):
-                      print "fuck 404!"
+                      print "404!"
                       return
                    if data.find("ERROR.")>-1 or len(data) < 1024:
                       Be_Banded=True
