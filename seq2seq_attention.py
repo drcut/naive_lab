@@ -101,9 +101,9 @@ def main_train():
     print("Create vocabularies")
     vocab_path = os.path.join(data_dir, "vocab.list")
     print("Vocabulary list: %s" % vocab_path)    # wmt/vocab40000.fr
-    tl.nlp.create_vocabulary(vocab_path, os.path.join(data_dir, "len15_blank.txt"),
-                vocab_size, tokenizer=None, normalize_digits=normalize_digits,
-                _DIGIT_RE=_DIGIT_RE, _START_VOCAB=_START_VOCAB)
+    #tl.nlp.create_vocabulary(vocab_path, os.path.join(data_dir, "len15_blank.txt"),
+    #            vocab_size, tokenizer=None, normalize_digits=normalize_digits,
+     #           _DIGIT_RE=_DIGIT_RE, _START_VOCAB=_START_VOCAB)
 
     #Tokenize Training and Testing data.
     print()
@@ -163,7 +163,7 @@ def main_train():
     print()
     print("Create Embedding Seq2seq Model")
     with tf.variable_scope("model", reuse=None):
-        model = tl.layers.EmbeddingSeq2seqWrapper(
+        model = tl.layers.EmbeddingAttentionSeq2seqWrapper(
                           vocab_size,
                           vocab_size,
                           buckets,
@@ -320,12 +320,14 @@ def main_decode():
       sentence = sys.stdin.readline()
 
 if __name__ == '__main__':
-    sess = tf.InteractiveSession()
+    
+    gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.180)  
+    sess = tf.InteractiveSession(config=tf.ConfigProto(gpu_options=gpu_options))
     try:
         """ Train model """
-        #main_train()
+        main_train()
         """ Play with model """
-        main_decode()
+        #main_decode()
     except KeyboardInterrupt:
         print('\nKeyboardInterrupt')
         tl.ops.exit_tf(sess)
