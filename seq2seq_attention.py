@@ -14,8 +14,8 @@ import sys
 from six.moves import xrange
 
 # Data directory and vocabularies size
-data_dir = "/media/robin/sorry/naive_lab/data"                # Data directory
-train_dir = "/media/robin/sorry/naive_lab/data/train"               # Model directory save_dir
+data_dir = "~/data"                # Data directory
+train_dir = os.path.join(data_dir, "/train")               # Model directory save_dir
 vocab_size = 50000           #vocabulary size
 # Create vocabulary file (if it does not exist yet) from data file.
 #_WORD_SPLIT = re.compile(b"([.,!?\"':;)(]，．、：；（） ！)") # regular expression for word spliting. in basic_tokenizer.
@@ -90,9 +90,9 @@ def read_data(source_path, target_path, buckets, EOS_ID, max_size=None):
 def main_train():
 
     print("Prepare the raw data")
-    train_path = "/media/robin/sorry/naive_lab/data/train/train1"
-    dev_path = "/media/robin/sorry/naive_lab/data/test/test1"
-    path="/media/robin/sorry/naive_lab/data/"
+    train_path = os.path.join(data_dir, "/train/train1")
+    dev_path = os.path.join(data_dir, "/test/test1")
+    path=data_dir
     print("Training data : %s" % train_path)   # wmt/giga-fren.release2
     print("Testing data : %s" % dev_path)     # wmt/newstest2013
 
@@ -101,7 +101,7 @@ def main_train():
     print("Create vocabularies")
     vocab_path = os.path.join(data_dir, "vocab%d.list" % vocab_size)
     print("Vocabulary list: %s" % vocab_path)    # wmt/vocab40000.fr
-    tl.nlp.create_vocabulary(vocab_path, "/media/robin/sorry/naive_lab/data/len15_blank.txt",
+    tl.nlp.create_vocabulary(vocab_path, os.path.join(data_dir, "len15_blank.txt"),
                 vocab_size, tokenizer=None, normalize_digits=normalize_digits,
                 _DIGIT_RE=_DIGIT_RE, _START_VOCAB=_START_VOCAB)
 
@@ -120,7 +120,7 @@ def main_train():
                                 UNK_ID=UNK_ID, _DIGIT_RE=_DIGIT_RE)
 
     # we should also create tokenized file for the development (testing) data.
-    
+
     ans_dev_ids_path = dev_path + (".ids%d.ans" % vocab_size)
     ask_dev_ids_path = dev_path + (".ids%d.ask" % vocab_size)
 
@@ -130,7 +130,7 @@ def main_train():
     tl.nlp.data_to_token_ids(dev_path + ".ask", ask_dev_ids_path, vocab_path,
                                 tokenizer=None, normalize_digits=normalize_digits,
                                 UNK_ID=UNK_ID, _DIGIT_RE=_DIGIT_RE)
-                                
+
     ask_train = ask_train_ids_path
     ans_train = ans_train_ids_path
     ask_dev = ask_dev_ids_path
@@ -210,7 +210,7 @@ def main_train():
         current_step += 1
 
         # Once in a while, we save checkpoint, print statistics, and run evals.
-        
+
         if current_step % steps_per_checkpoint == 0:
             # Print statistics for the previous epoch.
             perplexity = math.exp(loss) if loss < 300 else float('inf')
@@ -225,7 +225,7 @@ def main_train():
             # Save model
             tl.files.save_npz(model.all_params, name=model_file_name+'.npz')
             #model.print_params()
-            
+
             step_time, loss = 0.0, 0.0
             # Run evals on development set and print their perplexity.
             for bucket_id in xrange(len(buckets)):
@@ -239,7 +239,7 @@ def main_train():
                 eval_ppx = math.exp(eval_loss) if eval_loss < 300 else float('inf')
                 print("  eval: bucket %d perplexity %.2f" % (bucket_id, eval_ppx))
             sys.stdout.flush()
-                
+
     '''
     vocab, rev_vocab = tl.nlp.initialize_vocabulary(vocab_path)
     sys.stdout.write("> ")
@@ -260,9 +260,9 @@ def main_train():
       print(" ".join([tf.compat.as_str(rev_vocab[output]) for output in outputs]))
       print("> ", end="")
       sys.stdout.flush()
-      sentence = sys.stdin.readline()    
+      sentence = sys.stdin.readline()
       '''
-    
+
 def main_decode():
     # Create model and load parameters.
     with tf.variable_scope("model", reuse=None):
