@@ -101,43 +101,18 @@ def main_train():
     print("Create vocabularies")
     vocab_path = os.path.join(data_dir, "vocab.list")
     print("Vocabulary list: %s" % vocab_path)    # wmt/vocab40000.fr
-    #tl.nlp.create_vocabulary(vocab_path, os.path.join(data_dir, "len15_blank.txt"),
-    #            vocab_size, tokenizer=None, normalize_digits=normalize_digits,
-     #           _DIGIT_RE=_DIGIT_RE, _START_VOCAB=_START_VOCAB)
 
     #Tokenize Training and Testing data.
     print()
     print("Tokenize data")
     # normalize_digits=True means set all digits to zero, so as to reduce vocabulary size.
-    ans_train_ids_path = os.path.join(train_path, "raw_ans.txt") 
-    ask_train_ids_path = os.path.join(train_path, "raw_ask.txt") 
 
-    tl.nlp.data_to_token_ids(os.path.join(train_path, "id_ans.txt") , ans_train_ids_path, vocab_path,
-                                tokenizer=None, normalize_digits=normalize_digits,
-                                UNK_ID=UNK_ID, _DIGIT_RE=_DIGIT_RE)
-    tl.nlp.data_to_token_ids(os.path.join(train_path, "id_ask.txt") , ask_train_ids_path, vocab_path,
-                                tokenizer=None, normalize_digits=normalize_digits,
-                                UNK_ID=UNK_ID, _DIGIT_RE=_DIGIT_RE)
-
-    # we should also create tokenized file for the development (testing) data.
-
-    ans_dev_ids_path = os.path.join(dev_path, "raw_ans.txt") 
-    ask_dev_ids_path = os.path.join(dev_path, "raw_ask.txt") 
-
-    tl.nlp.data_to_token_ids(os.path.join(dev_path, "id_ans.txt"), ans_dev_ids_path, vocab_path,
-                                tokenizer=None, normalize_digits=normalize_digits,
-                                UNK_ID=UNK_ID, _DIGIT_RE=_DIGIT_RE)
-    tl.nlp.data_to_token_ids(os.path.join(train_path, "id_ask.txt"), ask_dev_ids_path, vocab_path,
-                                tokenizer=None, normalize_digits=normalize_digits,
-                                UNK_ID=UNK_ID, _DIGIT_RE=_DIGIT_RE)
-
-    ask_train = ask_train_ids_path
-    ans_train = ans_train_ids_path
-    ask_dev = ask_dev_ids_path
-    ans_dev = ans_dev_ids_path
+    ask_train = os.path.join(train_path, "id_ask.txt") 
+    ans_train = os.path.join(train_path, "id_ans.txt") 
+    ask_dev = os.path.join(dev_path, "id_ask.txt") 
+    ans_dev = os.path.join(dev_path, "id_ans.txt") 
 
     #Step 4 : Load both tokenized Training and Testing data into buckets and compute their size.
-
     print()
     print ("Read development (test) data into buckets")
     dev_set = read_data(ask_dev, ans_dev, buckets, EOS_ID)
