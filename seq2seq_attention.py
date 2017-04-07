@@ -34,7 +34,7 @@ UNK_ID = 3
 _START_VOCAB = [_PAD, _GO, _EOS, _UNK]
 plot_data = True
 # Model
-buckets = [(9, 10), (9, 15), (9, 20), (9, 30)]
+buckets = [(10, 10), (20, 20), (40, 40), (50, 50)]
 num_layers = 3
 size = 1024
 # Training
@@ -90,8 +90,8 @@ def read_data(source_path, target_path, buckets, EOS_ID, max_size=None):
 def main_train():
 
     print("Prepare the raw data")
-    train_path = os.path.join(data_dir, "/train/train1")
-    dev_path = os.path.join(data_dir, "/test/test1")
+    train_path = os.path.join(data_dir, "/train/")
+    dev_path = os.path.join(data_dir, "/test/")
     path=data_dir
     print("Training data : %s" % train_path)   # wmt/giga-fren.release2
     print("Testing data : %s" % dev_path)     # wmt/newstest2013
@@ -99,7 +99,7 @@ def main_train():
     #Create Vocabularies for both Training and Testing data.
     print()
     print("Create vocabularies")
-    vocab_path = os.path.join(data_dir, "vocab%d.list" % vocab_size)
+    vocab_path = os.path.join(data_dir, "vocab.list")
     print("Vocabulary list: %s" % vocab_path)    # wmt/vocab40000.fr
     tl.nlp.create_vocabulary(vocab_path, os.path.join(data_dir, "len15_blank.txt"),
                 vocab_size, tokenizer=None, normalize_digits=normalize_digits,
@@ -109,25 +109,25 @@ def main_train():
     print()
     print("Tokenize data")
     # normalize_digits=True means set all digits to zero, so as to reduce vocabulary size.
-    ans_train_ids_path = train_path + (".ids%d.ans" % vocab_size)
-    ask_train_ids_path = train_path + (".ids%d.ask" % vocab_size)
+    ans_train_ids_path = os.path.join(train_path, "raw_ans.txt") 
+    ask_train_ids_path = os.path.join(train_path, "raw_ask.txt") 
 
-    tl.nlp.data_to_token_ids(train_path + ".ans", ans_train_ids_path, vocab_path,
+    tl.nlp.data_to_token_ids(os.path.join(train_path, "id_ans.txt") , ans_train_ids_path, vocab_path,
                                 tokenizer=None, normalize_digits=normalize_digits,
                                 UNK_ID=UNK_ID, _DIGIT_RE=_DIGIT_RE)
-    tl.nlp.data_to_token_ids(train_path + ".ask", ask_train_ids_path, vocab_path,
+    tl.nlp.data_to_token_ids(os.path.join(train_path, "id_ask.txt") , ask_train_ids_path, vocab_path,
                                 tokenizer=None, normalize_digits=normalize_digits,
                                 UNK_ID=UNK_ID, _DIGIT_RE=_DIGIT_RE)
 
     # we should also create tokenized file for the development (testing) data.
 
-    ans_dev_ids_path = dev_path + (".ids%d.ans" % vocab_size)
-    ask_dev_ids_path = dev_path + (".ids%d.ask" % vocab_size)
+    ans_dev_ids_path = os.path.join(dev_path, "raw_ans.txt") 
+    ask_dev_ids_path = os.path.join(dev_path, "raw_ask.txt") 
 
-    tl.nlp.data_to_token_ids(dev_path + ".ans", ans_dev_ids_path, vocab_path,
+    tl.nlp.data_to_token_ids(os.path.join(dev_path, "id_ans.txt"), ans_dev_ids_path, vocab_path,
                                 tokenizer=None, normalize_digits=normalize_digits,
                                 UNK_ID=UNK_ID, _DIGIT_RE=_DIGIT_RE)
-    tl.nlp.data_to_token_ids(dev_path + ".ask", ask_dev_ids_path, vocab_path,
+    tl.nlp.data_to_token_ids(os.path.join(train_path, "id_ask.txt"), ask_dev_ids_path, vocab_path,
                                 tokenizer=None, normalize_digits=normalize_digits,
                                 UNK_ID=UNK_ID, _DIGIT_RE=_DIGIT_RE)
 
