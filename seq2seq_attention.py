@@ -14,9 +14,9 @@ import sys
 from six.moves import xrange
 
 # Data directory and vocabularies size
-data_dir = "~/data"                # Data directory
-train_dir = os.path.join(data_dir, "/train")               # Model directory save_dir
-vocab_size = 50000           #vocabulary size
+data_dir = "/home/jzs/data"                # Data directory
+train_dir = os.path.join(data_dir, "train")               # Model directory save_dir
+vocab_size = 50000#700000#50000           #vocabulary size
 # Create vocabulary file (if it does not exist yet) from data file.
 #_WORD_SPLIT = re.compile(b"([.,!?\"':;)(]，．、：；（） ！)") # regular expression for word spliting. in basic_tokenizer.
 _WORD_SPLIT=re.compile(b"([.,!?\"':;)(])")
@@ -90,8 +90,12 @@ def read_data(source_path, target_path, buckets, EOS_ID, max_size=None):
 def main_train():
 
     print("Prepare the raw data")
-    train_path = os.path.join(data_dir, "/train/")
-    dev_path = os.path.join(data_dir, "/test/")
+    train_path = os.path.join(data_dir, "train")
+    print("train path")
+    print(train_path)
+    print("data_dir")
+    print(data_dir)
+    dev_path = os.path.join(data_dir, "test")
     path=data_dir
     print("Training data : %s" % train_path)   # wmt/giga-fren.release2
     print("Testing data : %s" % dev_path)     # wmt/newstest2013
@@ -163,8 +167,8 @@ def main_train():
     step_time, loss = 0.0, 0.0
     current_step = 0
     previous_losses = []
-    for _ in range(10):
-    #while True:
+    #for _ in range(10):
+    while True:
         # Choose a bucket according to data distribution. We pick a random number
         # in [0, 1] and use the corresponding interval in train_buckets_scale.
         random_number_01 = np.random.random_sample()
@@ -242,7 +246,7 @@ def main_decode():
     # Create model and load parameters.
     with tf.variable_scope("model", reuse=None):
         #model_eval = tl.layers.EmbeddingSeq2seqWrapper(
-        model_eval = tl.layers.EmbeddingSeq2seqWrapper(
+        model_eval = tl.layers.EmbeddingAttentionSeq2seqWrapper(
                       source_vocab_size = vocab_size,
                       target_vocab_size = vocab_size,
                       buckets = buckets,
@@ -252,10 +256,12 @@ def main_decode():
                       batch_size = 1,  # We decode one sentence at a time.
                       learning_rate = learning_rate,
                       learning_rate_decay_factor = learning_rate_decay_factor,
+		      use_lstm = True,
                       forward_only = True) # is_train = False
 
     #sess.run(tf.initialize_all_variables())
-    sess.run(tf.global_variables_initializer())
+    #sess.run(tf.global_variables_initializer())
+    tl.layers.initialize_global_variables(sess)
 #tf.global_variables_initializer
     #Load params
     print("Load parameters from npz")
@@ -264,7 +270,7 @@ def main_decode():
     #model_eval.print_params()
 
     # Load vocabularies.
-    vocab_path = os.path.join(data_dir, "vocab%d.list" % vocab_size)
+    vocab_path = os.path.join(data_dir, "vocab.list")
     vocab, rev_vocab = tl.nlp.initialize_vocabulary(vocab_path)
 
     # Decode from standard input.
