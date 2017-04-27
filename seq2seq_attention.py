@@ -47,7 +47,7 @@ max_train_data_size = None             # Limit on the size of training data (0: 
 steps_per_checkpoint = 10           # Print, save frequence
 # Save model
 model_file_name = "model_conversition"
-resume = False
+resume = True
 
 
 def read_data(source_path, target_path, buckets, EOS_ID, max_size=None):
@@ -308,7 +308,7 @@ if __name__ == '__main__':
         """ Train model """
         main_train()
         """ Play with model """
-        #main_decode()
+        main_decode()
     except KeyboardInterrupt:
         print('\nKeyboardInterrupt')
         tl.ops.exit_tf(sess)
